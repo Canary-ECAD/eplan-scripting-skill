@@ -1,5 +1,5 @@
 ---
-name: eplan-development
+name: eplan-scripting
 description: Develop EPLAN Electric P8 scripts, API extensions, and remote-control applications. Use when writing C# scripts for EPLAN (actions, event handlers, ribbon), accessing the EPLAN API (parts database, projects, pages), building external apps that drive EPLAN via Remote Client, or debugging EPLAN automation issues (blocking, threading, dispose). Covers EPLAN 2022–2027.
 ---
 
@@ -37,7 +37,7 @@ source before writing them.** In order of preference:
 
 1. **Ask EPLAN itself.** If the session can reach a running EPLAN — through an
    MCP server (e.g. the `eplan` action server from
-   [eplan-rag-mcp](https://github.com/covagashi/eplan-rag-mcp)), a Remote Client,
+   [eplan-mcp](https://github.com/Canary-ECAD/eplan-mcp)), a Remote Client,
    or a script you can execute — introspection
    beats any document: enumerate the registered actions and their parameters,
    and reflect over `Eplan.EplApi.*` to confirm a member exists before calling
@@ -48,7 +48,7 @@ source before writing them.** In order of preference:
    skill — any equivalent index works). They are also exposed as the MCP servers
    `eplan-rag` (2026, semantic) and `eplan-wiki-2027` (2027, keyword) — both
    preconfigured in this repo's `.mcp.json`. Their source and deployment
-   instructions live in [eplan-cloudflare-rags](https://github.com/covagashi/eplan-cloudflare-rags):
+   instructions live in [eplan-cloudflare-rags](https://github.com/Canary-ECAD/eplan-cloudflare-rags):
 
    ```bash
    # Keyword / full-text (SQLite FTS5 + bm25), EPLAN 2027 docs.

@@ -38,7 +38,7 @@ For the ECAD module the output is a "typical workbook" — one sheet per mountin
 location listing the page/window macros to insert, already filtered to the resolved
 configuration. The full field-proven decode of that workbook (column layout, `####`
 group markers, why you must *not* re-evaluate the conditions) lives in the companion
-skill: `../eplan-p8/eplan-development/references/eec-typicals.md`.
+skill: `../eplan-p8/eplan-scripting/references/eec-typicals.md`.
 
 ## Where the work is
 
@@ -59,7 +59,7 @@ skill: `../eplan-p8/eplan-development/references/eec-typicals.md`.
 
 EEC Pro identifiers (formula functions, commands, parameters, VMArgs) are exact and
 many are documented only in the official help. The index source lives in
-[eplan-cloudflare-rags](https://github.com/covagashi/eplan-cloudflare-rags/tree/main/cloudflare-rag-eecpro).
+[eplan-cloudflare-rags](https://github.com/Canary-ECAD/eplan-cloudflare-rags/tree/main/cloudflare-rag-eecpro).
 Resolve identifiers against the doc index:
 
 1. **`eecpro-rag` MCP** (if configured — this repo ships it in `.mcp.json`):
@@ -85,10 +85,10 @@ Resolve identifiers against the doc index:
 EEC Pro's main output *is* an EPLAN Electric P8 project. The moment the task crosses
 to the P8 side — inserting the generated macros, renaming pages to the workbook's
 structure, scripting the EPLAN API, driving EPLAN remotely — load
-`../eplan-p8/eplan-development/`. Typical boundary:
+`../eplan-p8/eplan-scripting/`. Typical boundary:
 
 - Configurator/model/conditions/formulas side → this skill.
-- `.elk` project, `.ema`/`.emp` macros, `Eplan.EplApi.*`, Remote Client → `eplan-development`.
+- `.elk` project, `.ema`/`.emp` macros, `Eplan.EplApi.*`, Remote Client → `eplan-scripting`.
 
 ## Golden rules
 

@@ -30,26 +30,26 @@ it, work from that skill. Re-route only when the task pivots to the other produc
 
 | Product | File signals | Phrase signals | Skill |
 |---|---|---|---|
-| **EPLAN Electric P8** | `.elk`, `.ema`, `.emp`, `.edz`, `.zw*`, `*.cs` with `[Start]`/`[DeclareAction]`, `Eplan.EplApi.*` | script, action, API, Remote Client, parts database, pages, macros, symbols, ribbon, Cogineer | `skills/eplan-p8/eplan-development` |
+| **EPLAN Electric P8** | `.elk`, `.ema`, `.emp`, `.edz`, `.zw*`, `*.cs` with `[Start]`/`[DeclareAction]`, `Eplan.EplApi.*` | script, action, API, Remote Client, parts database, pages, macros, symbols, ribbon, Cogineer | `skills/eplan-p8/eplan-scripting` |
 | **EPLAN EEC Pro** | `Typical *.xlsm` workbooks, EEC project/model dirs | typical, mechatronic model, configuration, formula, variant, condition, generator, Job Server, Form-UI | `skills/eec-pro/eec-pro-development` |
 
 Ambiguous: an EEC Pro *generation* task that produces P8 output uses **both** —
-eec-pro-development for the model/conditions side, eplan-development for the
+eec-pro-development for the model/conditions side, eplan-scripting for the
 resulting macros/pages/API side. The boundary is spelled out in the EEC skill.
 
 ## 2. Task → skill
 
 - **Write/fix C# for EPLAN P8** (script, add-in, actions, events, ribbon, context
-  menus) → `eplan-development` → its `references/script-basics.md`,
+  menus) → `eplan-scripting` → its `references/script-basics.md`,
   `actions-reference.md`, `core-classes.md`.
 - **Read/write EPLAN data** (parts DB, project model, pages, properties, symbols)
-  → `eplan-development` → `references/api-data-access.md`.
+  → `eplan-scripting` → `references/api-data-access.md`.
 - **Drive EPLAN from outside** (Remote Client, headless, ports, Cogineer) →
-  `eplan-development` → `references/remoting.md`.
-- **Decode/generate a typical workbook into a P8 project** → `eplan-development` →
+  `eplan-scripting` → `references/remoting.md`.
+- **Decode/generate a typical workbook into a P8 project** → `eplan-scripting` →
   `references/eec-typicals.md` (the insertion side) + `eec-pro-development` (the
   model/conditions side).
-- **Hangs, timeouts, weird behavior in EPLAN automation** → `eplan-development` →
+- **Hangs, timeouts, weird behavior in EPLAN automation** → `eplan-scripting` →
   `references/pitfalls.md` first, always.
 - **EEC Pro model/typical/formula/config/generation work** → `eec-pro-development`
   → `references/doc-categories.md` for which doc category to query.
@@ -65,7 +65,7 @@ Three public indexes, three different strengths — pick deliberately:
 | `eplan-rag` · `rag2026.covaga.xyz` | P8 docs 2026 | Semantic (bge, ~57k vectors) | P8 questions phrased without exact identifiers |
 | `eplan-wiki-2027` · `rag2027.covaga.xyz` | P8 docs 2027 | Keyword/FTS5 + bm25 | Exact names — actions, classes, methods, error codes |
 
-The three remote indexes are maintained in [eplan-cloudflare-rags](https://github.com/covagashi/eplan-cloudflare-rags).
+The three remote indexes are maintained in [eplan-cloudflare-rags](https://github.com/Canary-ECAD/eplan-cloudflare-rags).
 
 Measured head-to-head: FTS5 wins exact-name lookups; semantic wins when the query
 shares no vocabulary with the docs. When both P8 indexes are available and you know
@@ -73,6 +73,6 @@ the identifier, hit 2027 first.
 
 All expose `POST /search {"query", "topK"}` + `GET /stats`/`/health` over REST, and
 the same content over MCP when the `.mcp.json` servers are configured. The local
-`eplan` action server (from `eplan-rag-mcp`, not auto-installed) can additionally
+`eplan` action server (from `eplan-mcp`, not auto-installed) can additionally
 *execute* actions/scripts on a running EPLAN and introspect the API live — when it
 is connected, prefer live introspection over any doc index.

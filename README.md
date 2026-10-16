@@ -23,38 +23,45 @@ The [`skills` CLI](https://github.com/vercel-labs/skills) installs into 60+
 agents (Claude Code, Cursor, Codex, Copilot, Windsurf, …):
 
 ```bash
-npx skills add covagashi/eplan-development-skill
+npx skills add Canary-ECAD/eplan-scripting-skill
 ```
 
 ### As a Claude Code plugin
 
+The plugins are published through the single Canary E-cad marketplace,
+`eplan-tools`, which lives in [eplan-mcp](https://github.com/Canary-ECAD/eplan-mcp):
+
 ```
-/plugin marketplace add covagashi/eplan-development-skill
-/plugin install eplan@eplan-skills        # router + all skills
-/plugin install eplan-development@eplan-skills   # P8 only
-/plugin install eec-pro@eplan-skills             # EEC Pro only
+/plugin marketplace add Canary-ECAD/eplan-mcp
+/plugin install eplan@eplan-tools            # router + all skills + doc RAGs
+/plugin install eplan-scripting@eplan-tools  # Electric P8 only
+/plugin install eec-pro@eplan-tools          # EEC Pro only
 ```
 
-Update later with `/plugin marketplace update eplan-skills`.
+Update later with `/plugin marketplace update eplan-tools`.
+
+> Coming from the old `eplan-skills` marketplace or the `eplan-development` skill?
+> Remove them (`/plugin marketplace remove eplan-skills`) and install from
+> `eplan-tools` as above. The P8 skill is now called `eplan-scripting`.
 
 ### Manually
 
 ```bash
-git clone https://github.com/covagashi/eplan-development-skill
+git clone https://github.com/Canary-ECAD/eplan-scripting-skill
 ```
 
 ```powershell
 # Windows - personal skills, available in every project.
 # ~/.agents/skills is the universal dir most agents read; use ~/.claude/skills for Claude Code.
-xcopy /E /I eplan-development-skill\skills\eplan-p8\eplan-development "$env:USERPROFILE\.agents\skills\eplan-development"
-xcopy /E /I eplan-development-skill\skills\eec-pro\eec-pro-development "$env:USERPROFILE\.agents\skills\eec-pro-development"
+xcopy /E /I eplan-scripting-skill\skills\eplan-p8\eplan-scripting "$env:USERPROFILE\.agents\skills\eplan-scripting"
+xcopy /E /I eplan-scripting-skill\skills\eec-pro\eec-pro-development "$env:USERPROFILE\.agents\skills\eec-pro-development"
 ```
 
 ```bash
 # macOS / Linux — universal dir (Amp, Codex, Cline, …). Use ~/.claude/skills for Claude Code.
-cp -r eplan-development-skill/skills/eplan-p8/eplan-development ~/.agents/skills/
-cp -r eplan-development-skill/skills/eec-pro/eec-pro-development ~/.agents/skills/
-cp -r eplan-development-skill/router ~/.agents/skills/router
+cp -r eplan-scripting-skill/skills/eplan-p8/eplan-scripting ~/.agents/skills/
+cp -r eplan-scripting-skill/skills/eec-pro/eec-pro-development ~/.agents/skills/
+cp -r eplan-scripting-skill/router ~/.agents/skills/router
 ```
 
 For a single project, copy into `<your-project>/.agents/skills/` (or
@@ -65,12 +72,12 @@ For a single project, copy into `<your-project>/.agents/skills/` (or
 ## The MCP servers
 
 The skills are **host-agnostic** — useful on their own. Paired with the remote
-[documentation RAGs](https://github.com/covagashi/eplan-cloudflare-rags), the agent can
+[documentation RAGs](https://github.com/Canary-ECAD/eplan-cloudflare-rags), the agent can
 *query the EPLAN documentation*. The local action server in
-[eplan-rag-mcp](https://github.com/covagashi/eplan-rag-mcp) can *drive a running EPLAN*.
+[eplan-mcp](https://github.com/Canary-ECAD/eplan-mcp) can *drive a running EPLAN*.
 
 This repo ships a [`.mcp.json`](.mcp.json) with the three **remote doc RAGs**
-from [eplan-cloudflare-rags](https://github.com/covagashi/eplan-cloudflare-rags)
+from [eplan-cloudflare-rags](https://github.com/Canary-ECAD/eplan-cloudflare-rags)
 (already deployed, no local data needed):
 
 | Server | Endpoint | Covers | Search |
@@ -93,22 +100,20 @@ with `cmd /c` before `npx` on Windows.)
 The **local action server** (`eplan`, ~200 tools: run actions/scripts inside a
 running EPLAN, introspect the API live) installs separately — it needs Python +
 `pythonnet` on the EPLAN machine. See
-[eplan-rag-mcp](https://github.com/covagashi/eplan-rag-mcp#local-eplan-automation-p8).
+[eplan-mcp](https://github.com/Canary-ECAD/eplan-mcp#local-eplan-automation-p8).
 
 ---
 
 ## What's inside
 
 ```
-eplan-development-skill/
-├── .claude-plugin/
-│   └── marketplace.json        # /plugin marketplace add works on this repo
+eplan-scripting-skill/
 ├── .mcp.json                   # the three remote doc-RAG MCP servers
 ├── router/
 │   └── SKILL.md                # detects P8 vs EEC Pro + task → loads the right skill
 └── skills/
     ├── eplan-p8/
-    │   └── eplan-development/
+    │   └── eplan-scripting/
     │       ├── SKILL.md        # the three dev models, lookup order, golden rules
     │       └── references/     # script-basics, actions, core-classes,
     │                           # api-data-access, e3d-installation-spaces,
@@ -134,9 +139,9 @@ that matches the task, so it costs little context until needed.
 
 ## Pairs well with
 
-- **[eplan-rag-mcp](https://github.com/covagashi/eplan-rag-mcp)** — the local MCP
+- **[eplan-mcp](https://github.com/Canary-ECAD/eplan-mcp)** — the local MCP
   server that lets the agent *execute* inside a running EPLAN.
-- **[eplan-cloudflare-rags](https://github.com/covagashi/eplan-cloudflare-rags)** —
+- **[eplan-cloudflare-rags](https://github.com/Canary-ECAD/eplan-cloudflare-rags)** —
   the three remote documentation RAGs configured in `.mcp.json`.
 - **[eplan-ctxmenu-kit](https://github.com/covagashi/eplan-ctxmenu-kit)** — a
   worked example of the context-menu material: adding right-click entries and
@@ -145,3 +150,5 @@ that matches the task, so it costs little context until needed.
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+> **Disclaimer:** this is an independent community project by [Canary E-cad](https://github.com/Canary-ECAD). It is not affiliated with, endorsed by, or supported by EPLAN GmbH & Co. KG. EPLAN, EPLAN Electric P8 and EPLAN EEC Pro are trademarks of their respective owner.
