@@ -4,15 +4,15 @@ How to turn a `Typical <timestamp>.xlsm` sheet into a real EPLAN project by
 inserting its macros yourself, without EEC One in the loop.
 
 Field-proven 2026-09-09 on EPLAN 2025 (remote 49152), workbook
-`Typical 20260907122428.xlsm`, macro root `V:\Macros\ProductoSTD`, product
-family `7C0x`. Two sheets generated back to back: `L1.Z1@C0001_MULTI1`
-(122 items, 38 pages) and `L1.Z1@C0002_MULTI1` (145 items, 39 pages,
+`Typical 20260907122428.xlsm`, macro root `D:\Macros\Products`, product
+family `AB1x`. Two sheets generated back to back: `A1.B1@M0001_MULTI1`
+(122 items, 38 pages) and `A1.B1@M0002_MULTI1` (145 items, 39 pages,
 51 340 objects) — 0 failures on both.
 
 ## Reading the workbook
 
 One sheet per cabinet, named `<installation site>@<mounting location>_MULTI<n>`
-(e.g. `L1.Z1@C0001_MULTI1`). Alongside them sit `RESUME`, `CONFIG_1`,
+(e.g. `A1.B1@M0001_MULTI1`). Alongside them sit `RESUME`, `CONFIG_1`,
 `TYPICAL EEC` (the column template), `AUX_1` and some `wksHidden_*` rule
 sheets — none of which you need to insert anything.
 
@@ -36,22 +36,22 @@ It is the **only** row with B–H filled, and those values apply to *every* page
 the sheet generates. Rows 3+ carry only A, I, J, K, L.
 
 It also holds the parameter set that produced this instance
-(`FTD_VERSION`, `TYPE`, `NSI`, `LI_1..6`, `CS`, `CAL`, `TNEUTRAL_R`…) and, in
+(`VERSION`, `TYPE`, `N_IN`, `OPT_1..6`, `MODE`, `CAL`, `EARTHING`…) and, in
 the first general-property value, a summary code like
-`K3-X15C0L-1-CNNNNN-000Z`. Those are documentation of *why* these rows are
+`XX-A00-1-NNNNNN-000Z`. Those are documentation of *why* these rows are
 here — do **not** try to evaluate them.
 
 ### The sheet is already filtered — do not evaluate the conditions
 
-Macro filenames encode their own inclusion rule: `_CS=L`, `_NSI≥1`, `_CAL=NO`,
-`_TNEUTRAL_R≠IT`, and compound `Y(...)` = AND, `O(...)` = OR, e.g.
-`040_{X06AC}_Y(CS=L;Y(O(LI_1=C;LI_1=S);O(TNEUTRAL_R=TT;TNEUTRAL_R=TNS)))`.
+Macro filenames encode their own inclusion rule: `_MODE=L`, `_N_IN≥1`, `_CAL=NO`,
+`_EARTHING≠IT`, and compound `Y(...)` = AND, `O(...)` = OR, e.g.
+`040_{X06AC}_Y(MODE=L;Y(O(OPT_1=C;OPT_1=S);O(EARTHING=TT;EARTHING=TNS)))`.
 
 **These are already resolved.** The generated workbook lists only the macros
 that passed. Confirm it cheaply: the macro folder on disk holds the
-complementary variants (`CS=XL`, `NSI≥3`, `TNEUTRAL_R=IT`) that the sheet does
+complementary variants (`MODE=XL`, `N_IN≥3`, `EARTHING=IT`) that the sheet does
 not list. Some conditions even reference parameters absent from row 2
-(`SL_1`, `NLI` — derived in the hidden rules sheets), so evaluating them
+(`DER_1`, `N_DER` — derived in the hidden rules sheets), so evaluating them
 yourself is not just wasted work, it is not possible from the sheet alone.
 
 ### `####` markers
@@ -168,7 +168,7 @@ Variant: column K letter, `A` → `0`.
 
 `PageMacro(..., insertAfter: null, ...)` takes the structure identifiers from
 the macro, so pages arrive named after the authoring project — the reference
-run produced `=MLX++17+Hoja de configuración/3` for a macro that column I said
+run produced `=ACME++17+Configuration sheet/3` for a macro that column I said
 was page `015`. The docs' alternative (structure inherited from
 `insertAfter`'s parent node) does not give you column I either.
 
@@ -198,7 +198,7 @@ Property-name mapping, since none of them is named after its column label:
 
 `PAGE_COUNTER` accepts a **string** through `PropertyValue`'s implicit
 conversion, and that is what preserves a leading zero: pass `"015"`, not `15`.
-Result: `&ECS=0++L1.Z1+C0001/015`.
+Result: `&DOC=0++A1.B1+M0001/015`.
 
 If one `.emp` ever yields several pages, give the first column I and suffix the
 rest (`015.1`, `015.2`). In the reference family each page name appears exactly
@@ -208,8 +208,8 @@ once as an `.emp`, so this never fired — but a silent name collision would.
 
 Window macros find their page by column I. Seeding that dictionary from the
 pages already in the project **is a real bug the moment a second cabinet is
-generated into the same project**: C0001 and C0002 both own a page whose
-counter is `015`, so the C0002 window macros would silently land on C0001's
+generated into the same project**: M0001 and M0002 both own a page whose
+counter is `015`, so the M0002 window macros would silently land on M0001's
 pages. Since every `.emp` for a sheet lives in that same sheet, register only
 pages created during the run. Use the existing pages solely to pick the
 `insertAfter` anchor so the new block appends at the end of the tree.
@@ -235,13 +235,13 @@ if (projName != EXPECT_PROJECT)
 ## The trailing script row
 
 The last row is typically
-`####[script=\\<server>\Eplan\Macros\ProductoSTD\_TOOLS\MLX_Numerar_paginas.cs]`
+`####[script=\\<server>\Eplan\Macros\Products\_TOOLS\Renumber_pages.cs]`
 — a post-process that **renumbers every page**, discarding the column-I names
 you just set. It is a separate, hard-to-reverse step: report it and let the
 user decide, rather than running it as part of "insert the macros".
 
-Note the row's UNC path (`\\<server>\Eplan\Macros\ProductoSTD`) and the local
-macro root (`V:\Macros\ProductoSTD`) are the same share. Ask for the root
+Note the row's UNC path (`\\<server>\Eplan\Macros\Products`) and the local
+macro root (`D:\Macros\Products`) are the same share. Ask for the root
 rather than deriving it.
 
 ## Verifying the result
@@ -257,11 +257,11 @@ Expected noise on a freshly generated project, and what it means:
 | 2 / 3 | Interruption point without counterpart / without target | **Expected** while only some cabinets exist — the counterparts live in the sheets you have not generated yet |
 | 1 | Placement outside the plot frame's evaluation area | Worth a look; came from MacroBox and PLC objects |
 | 23 | Main function data ≠ part data | Macro/parts-database drift, pre-existing |
-| 999 | "Verificación de calidad", empty text | Bulk of the messages and says nothing useful through `GetText()` — check the GUI dialog before reporting it as a finding |
+| 999 | A localized "quality check" message, empty text | Bulk of the messages and says nothing useful through `GetText()` — check the GUI dialog before reporting it as a finding |
 
 During insertion the message tree also fills with one benign repeated warning
 per part carrying a user-defined property whose display name differs from the
-project's ("…tiene un nombre mostrado diferente…"). Not caused by the
+project's ("…has a different display name…", localized). Not caused by the
 insertion.
 
 `PrjMessagesCollection.Count` again disagreed with the check summary

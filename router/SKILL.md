@@ -1,13 +1,12 @@
 ---
 name: router
 description: >
-  Routes any EPLAN-related request to the right skill and documentation index:
-  detects the product (EPLAN Electric P8 vs EPLAN EEC Pro) and the task, then reads
-  the matching skill before acting. Use for EPLAN C# scripting, the EPLAN API,
-  actions, Remote Client automation, macros, parts databases; for EEC Pro typicals,
-  mechatronic models, the formula language, configurations and generation pipelines;
-  and to pick the right doc index (P8 2026 semantic, P8 2027 keyword, EEC Pro
-  semantic). Start here when unsure which EPLAN skill applies.
+  Routes any EPLAN Electric P8 request to the right reference and documentation
+  index: classifies the task, then reads the matching part of the eplan-scripting
+  skill before acting, and hands EEC Pro work to the separate eec-pro-development
+  skill. Use for EPLAN C# scripting, the EPLAN API, actions, Remote Client
+  automation, macros, parts databases, and to pick the right P8 doc index (2026
+  semantic, 2027 keyword). Start here when unsure which EPLAN skill applies.
 ---
 
 # Router — EPLAN skill dispatcher
@@ -31,11 +30,13 @@ it, work from that skill. Re-route only when the task pivots to the other produc
 | Product | File signals | Phrase signals | Skill |
 |---|---|---|---|
 | **EPLAN Electric P8** | `.elk`, `.ema`, `.emp`, `.edz`, `.zw*`, `*.cs` with `[Start]`/`[DeclareAction]`, `Eplan.EplApi.*` | script, action, API, Remote Client, parts database, pages, macros, symbols, ribbon, Cogineer | `skills/eplan-p8/eplan-scripting` |
-| **EPLAN EEC Pro** | `Typical *.xlsm` workbooks, EEC project/model dirs | typical, mechatronic model, configuration, formula, variant, condition, generator, Job Server, Form-UI | `skills/eec-pro/eec-pro-development` |
+| **EPLAN EEC Pro** | `.eox` models, `.jmx` Job Server recipes, EEC project/model dirs | mechatronic model, configuration, formula, variant, condition, generator, Job Server, Form-UI | **separate skill** `eec-pro-development` ([eec-pro-skill](https://github.com/Canary-ECAD/eec-pro-skill)) — load it if installed, otherwise suggest installing it |
 
-Ambiguous: an EEC Pro *generation* task that produces P8 output uses **both** —
-eec-pro-development for the model/conditions side, eplan-scripting for the
-resulting macros/pages/API side. The boundary is spelled out in the EEC skill.
+Ambiguous: an EEC Pro *generation* task that produces P8 output uses **both**:
+eec-pro-development for the model, conditions and Job Server side, and
+eplan-scripting for the resulting macros, pages and API side. The boundary is
+spelled out in the EEC skill. A `Typical *.xlsm` workbook that you insert into P8
+yourself, without EEC in the loop, is P8 work: `eplan-scripting` → `eec-typicals.md`.
 
 ## 2. Task → skill
 
@@ -47,25 +48,25 @@ resulting macros/pages/API side. The boundary is spelled out in the EEC skill.
 - **Drive EPLAN from outside** (Remote Client, headless, ports, Cogineer) →
   `eplan-scripting` → `references/remoting.md`.
 - **Decode/generate a typical workbook into a P8 project** → `eplan-scripting` →
-  `references/eec-typicals.md` (the insertion side) + `eec-pro-development` (the
-  model/conditions side).
+  `references/eec-typicals.md` (the insertion side). The model and conditions side
+  is in `eec-pro-development`, a separate skill.
 - **Hangs, timeouts, weird behavior in EPLAN automation** → `eplan-scripting` →
   `references/pitfalls.md` first, always.
-- **EEC Pro model/typical/formula/config/generation work** → `eec-pro-development`
-  → `references/doc-categories.md` for which doc category to query.
+- **EEC Pro model/typical/formula/config/Job Server/generation work** → the
+  separate `eec-pro-development` skill, which also holds the EEC Pro doc-index map.
 - **"Which doc index do I search?"** → §3.
 
 ## 3. Doc-index selection
 
-Three public indexes, three different strengths — pick deliberately:
+Two public P8 indexes with different strengths — pick deliberately:
 
 | Index | Product / version | Search mode | Use it for |
 |---|---|---|---|
-| `eecpro-rag` · `rageecpro.covaga.xyz` | EEC Pro 2026 | Semantic (bge) | All EEC Pro docs; filter with `category` (36 of them) |
 | `eplan-rag` · `rag2026.covaga.xyz` | P8 docs 2026 | Semantic (bge, ~57k vectors) | P8 questions phrased without exact identifiers |
 | `eplan-wiki-2027` · `rag2027.covaga.xyz` | P8 docs 2027 | Keyword/FTS5 + bm25 | Exact names — actions, classes, methods, error codes |
 
-The three remote indexes are maintained in [eplan-cloudflare-rags](https://github.com/Canary-ECAD/eplan-cloudflare-rags).
+The EEC Pro index (`eecpro-rag`) ships with the separate EEC Pro skill. All remote
+indexes are maintained in [eplan-cloudflare-rags](https://github.com/Canary-ECAD/eplan-cloudflare-rags).
 
 Measured head-to-head: FTS5 wins exact-name lookups; semantic wins when the query
 shares no vocabulary with the docs. When both P8 indexes are available and you know

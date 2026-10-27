@@ -225,14 +225,14 @@ descriptions, manufacturer, order number etc. are `ARTICLE_*` entries on
 
 ## User-defined properties on parts
 
-User-defined properties live on the part as `UserDefinedPropertyPositions`; each position has `IdentifyingName` (e.g. `"MLX.P025"`) and `Value` (multilang string):
+User-defined properties live on the part as `UserDefinedPropertyPositions`; each position has `IdentifyingName` (e.g. `"ACME.P001"`) and `Value` (multilang string):
 
 ```csharp
 foreach (var pos in part.UserDefinedPropertyPositions)
 {
     if (pos == null) continue;
     string ident = pos.IdentifyingName ?? "";
-    if (ident.Equals("MLX.P025", StringComparison.OrdinalIgnoreCase))
+    if (ident.Equals("ACME.P001", StringComparison.OrdinalIgnoreCase))
     {
         var v = pos.Value;
         if (v != null) myValue = ParseMultiLang(v.ToString());

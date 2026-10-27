@@ -7,10 +7,6 @@
     "eplan-wiki-2027": {
       "type": "http",
       "url": "https://rag2027.covaga.xyz/mcp"
-    },
-    "eecpro-rag": {
-      "type": "http",
-      "url": "https://rageecpro.covaga.xyz/mcp"
     }
   }
 }
