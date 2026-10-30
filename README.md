@@ -140,6 +140,9 @@ that matches the task, so it costs little context until needed.
 - **[eplan-ctxmenu-kit](https://github.com/covagashi/eplan-ctxmenu-kit)** — a
   worked example of the context-menu material: adding right-click entries and
   reading the row the user clicked.
+- **[Bochica](https://github.com/Canary-ECAD/bochica)** — a Windows desktop app
+  that bundles this skill, eplan-mcp and the documentation RAGs behind a chat, for people
+  who don't program. Works with any AI provider.
 
 ## License
 
