@@ -115,8 +115,9 @@ eplan-scripting-skill/
         └── eplan-scripting/
             ├── SKILL.md        # the three dev models, lookup order, golden rules
             └── references/     # script-basics, actions, core-classes,
-                                # api-data-access, e3d-installation-spaces,
-                                # eec-typicals, remoting, pitfalls, integration
+                                # api-data-access, parts-database,
+                                # e3d-installation-spaces, eec-typicals,
+                                # remoting, pitfalls, integration
 ```
 
 Each `SKILL.md` is the entry point; the agent pulls in only the reference file
