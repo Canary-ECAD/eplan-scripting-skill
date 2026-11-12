@@ -127,7 +127,8 @@ that matches the task, so it costs little context until needed.
 
 - **EPLAN Electric P8 2022–2027** — with the version-specific notes called out:
   ribbon API since 2022, remoting defaults 2023 vs "Remote Client Access" + gRPC
-  in 2025, the `...Netu` assemblies in 2027, .NET Framework 4.8.1 targeting.
+  in 2025, .NET Framework 4.8.1 up to 2026 vs .NET 8 and the `...Netu` assemblies
+  in 2027, and addressing projects by path instead of GUI focus.
 
 ## Pairs well with
 
