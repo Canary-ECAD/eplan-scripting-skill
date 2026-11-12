@@ -262,3 +262,63 @@ and two extra remote-API round-trips (register + unregister) per call —
 measured at roughly 44% of total run time for a small script. Call
 `ExecuteScript` alone for one-shot scripts; reserve `RegisterScript`/
 `UnregisterScript` for scripts you're actually loading persistently.
+
+## 11. Closing (and opening) one project without touching the user's
+
+Automation that opens a scratch copy next to the user's real work must never
+let the GUI decide which project an operation hits. Three things measured live
+on EPLAN 2026.0.3 with a real project and two scratch clones open:
+
+- **`XPrjActionProjectClose` takes no project argument and closes what the GUI
+  has selected.** After a navigator selection had touched the clones, two close
+  calls closed **three** projects, the user's real one among them. Checking the
+  focused project before the call is not enough: a multi-selection is not
+  visible through `selectionset /TYPE:PROJECT`.
+- **Opening a project does not necessarily give it focus.** `ProjectOpen`
+  reported success, the project was open, and `SelectionSet.GetCurrentProject`
+  still returned the project the user was in. "Open it, then work on the current
+  project" is therefore a write to the wrong project waiting to happen.
+- **A project without focus is fully usable through its object.**
+  `DMObjectsFinder` over it, property writes and page creation all worked on a
+  clone that never had focus.
+
+So resolve the project by path and act on the object:
+
+```csharp
+// C# 5 / reflection, as in references/e3d-installation-spaces.md
+Type pmType = FindType("Eplan.EplApi.DataModel.ProjectManager");
+object pm = Activator.CreateInstance(pmType);
+object wanted = null;
+List<string> before = new List<string>();
+foreach (object p in (IEnumerable)pmType.GetProperty("OpenProjects").GetValue(pm, null))
+{
+    string link = (string)p.GetType().GetProperty("ProjectLinkFilePath").GetValue(p, null);
+    before.Add(link);
+    if (string.Equals(link, elkPath, StringComparison.OrdinalIgnoreCase)) wanted = p;
+}
+if (wanted == null) throw new Exception("Not open: " + elkPath);
+wanted.GetType().GetMethod("Close", Type.EmptyTypes).Invoke(wanted, null);
+// Re-read OpenProjects: exactly elkPath must be gone, nothing else.
+```
+
+`Project.Close()` closed only the clone, with the open-project list read before
+and after as proof. Compare the lists every time and treat any other missing
+project as a failure to report, not a detail.
+
+## 12. "Does not match any existing software version" means "upgrade it first"
+
+`ProjectOpen` on a project saved by an older EPLAN fails under QuietMode with
+*"The project could not be opened because it does not match any existing
+software version"* (Spanish UI: *"no se ajusta a ninguna versión de software
+existente"*), and the wrapper may only report a generic open failure.
+Interactively EPLAN would offer an upgrade; in batch nothing asks. Run
+`XPrjActionUpgradeProjects /PROJECT:<path.elk>` first, then open — measured on
+2026.0.3 with projects from 2023/2024. The upgrade is one-way for that copy and
+writes a backup (`pr_V13.0_0.zw1` here) into the project's folder; clean it up
+when that folder is a scratch area.
+
+Copying `<name>.elk` + `<name>.edb\` under a new name is enough to clone a
+project. The `.elk` is a UTF-16 LE text file of two lines (`<old>.edb` and a
+format number such as `13.0`); its first line does not have to be rewritten — a
+clone whose `.elk` still names the template's `.edb` opened fine after the
+upgrade. If you do rewrite it, keep UTF-16 LE with BOM.

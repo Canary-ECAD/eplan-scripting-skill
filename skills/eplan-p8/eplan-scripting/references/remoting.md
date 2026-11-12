@@ -9,6 +9,32 @@ Reference DLLs from `C:\Program Files\EPLAN\Platform\<version>\Bin\` (e.g. `Epla
 |---|---|
 | 2023 | Remoting server on by default |
 | 2025 | Must enable **"Remote Client Access"** in EPLAN options, otherwise no server/port (49152) opens. `EplanRemoteClient.StartEplan()` does NOT work (relies on the removed `EplanServer` action) — launch the process yourself and poll. |
+| 2026 | Same as 2025. With the option off the process listens on **no** port at all, and a client gets gRPC `Unavailable: failed to connect to all addresses` — not a wrong-port problem. The option takes effect after an EPLAN restart. |
+
+## Runtime and API assembly names per version
+
+| Version | .NET runtime | Managed API assemblies | Detect it from `Bin` |
+|---|---|---|---|
+| 2026 and older | .NET Framework 4.8.1 (`ImageRuntimeVersion` v4.0.30319) | `Eplan.EplApi.Baseu.dll`, `...DataModelu.dll`, ... | no `Grpc.Net.Client.dll`, no `*Netu.dll` |
+| 2027 | .NET 8 (coreclr) | `Eplan.EplApi.BaseNetu.dll`, `...DataModelNetu.dll`, ... — the `*u.dll` beside them are native twins | `Grpc.Net.Client.dll` and `*Netu.dll` present |
+
+- A client or add-in must run on the same runtime: pythonnet loads `coreclr` for 2027 and
+  the default .NET Framework runtime for 2026; a .NET 8 assembly loaded into EPLAN 2026
+  fails with `TypeLoadException: Could not load type
+  'System.Runtime.Loader.AssemblyLoadContext' from 'mscorlib, Version=4.0.0.0'`, and
+  EPLAN survives it (measured live on 2026.0.3).
+- Compiling is not proof: a `net8.0-windows` project builds cleanly against 2026's `*u.dll`
+  (they are just metadata to the compiler) and still cannot load there.
+- Choosing references: take every `Eplan.EplApi.*Netu.dll` when the folder has any, else
+  `Eplan.EplApi.*u.dll` minus the `*Netu` ones. Never glob `*u.dll` on 2027 — it matches the
+  native twins too.
+
+## Which address the port binds
+
+EPLAN 2026 binds its remoting port (49152 here) on the machine's **LAN addresses and `[::1]`,
+not on `127.0.0.1`** (`netstat -ano` while connected). `Connect("localhost", ...)` still
+works because `localhost` resolves to `::1`, but the port is reachable from the network:
+treat anything that can run scripts over it (`ExecuteScript`) as exposed to the LAN.
 
 ## Minimal client (discover + connect + execute)
 
@@ -36,6 +62,21 @@ client.Dispose();
 ```
 
 Never hardcode the port — always discover it via `GetActiveEplanServersOnLocalMachine`.
+
+**From Python (pythonnet), the `out` list comes back as the call's return value** and the
+list you passed in stays empty — so a port of the C# above that reads the argument always
+sees "no servers" and falls back to a guessed port:
+
+```python
+from System.Collections.Generic import List
+returned = client.GetActiveEplanServersOnLocalMachine(List[EplanServerData]())
+# the out-list is the result, or the last item of a (return value, out...) tuple
+servers = returned[-1] if isinstance(returned, tuple) else returned
+```
+
+Measured on 2027 and confirmed live on 2026.0.3 (it then reports `2026.0.3.25794` on port
+49152). Enumeration can still come back empty for a while right after EPLAN starts, with the
+port already up, so keep a fallback that reads the ports the EPLAN process listens on.
 
 ## Executing actions with parameters (`ActionContext`)
 
