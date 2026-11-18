@@ -86,7 +86,7 @@ Start with `eplan_status`.
 | Is EPLAN up, which version, which project | `eplan_status` |
 | Exact action name and parameters | `eplan_action_catalog`, then `eplan_action_describe` |
 | Does an `Eplan.EplApi` type or member exist | `eplan_api_types`, `eplan_api_describe` |
-| Run C# against the API (2027+ script host) | `eplan_script_run`: `compile_only=True`, then `dry_run=True`, then for real |
+| Run C# against the API (script host, 2026 and 2027+) | `eplan_script_run`: `compile_only=True`, then `dry_run=True`, then for real |
 | Ready-made scripts | `eplan_script_list`, then `eplan_script_run(script=...)` |
 | A long run | `eplan_script_status(run_id)`, `eplan_script_cancel` |
 | Any write | first a clone with `eplan_scratch_project_create`, never the user's project unless they approved it |
@@ -96,9 +96,12 @@ Start with `eplan_status`.
 
 Before writing a script for the script host, read the MCP resource
 `eplan-help://scripting-guide`. It covers `ctx`, the `@writes`/`@needs` headers, the write
-gate and the `EMCP00x` safety-check codes. The script host is not the same as plain
-`ExecuteScript`. It compiles with EPLAN's Roslyn and needs EPLAN 2027 (.NET 8). On 2026, use
-`eplan_execute_custom_script` and the C# 5 rule (golden rule 10).
+gate and the `EMCP00x` safety-check codes. The server itself covers EPLAN 2.9 to 2027; its
+script host is narrower and is not plain `ExecuteScript`. It compiles with Roslyn, in two flavors:
+`net8` on 2027+ (EPLAN's own Roslyn, each script unloaded after its run) and `netfx` on 2026
+(the host ships its own Roslyn; a script stays loaded until EPLAN closes). One script can
+serve both with `#if NETFRAMEWORK`. On EPLAN 2025 and older the host refuses up front: use
+`eplan_execute_custom_script` (EPLAN's script engine) with the C# 5 rule (golden rule 10).
 
 Script replies name their resources (`resources`, `source_uri`): a run's full result, its
 large data and its progress are `eplan-script://runs/<run_id>/{result,data,progress}`, read on
