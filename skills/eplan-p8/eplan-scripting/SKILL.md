@@ -73,6 +73,38 @@ source before writing them.** In order of preference:
 Query in English, and prefer several narrow queries over one broad one
 ("action to renumber devices", "PagePropertyList page type values").
 
+## With the `eplan` MCP server connected
+
+The server from [eplan-mcp](https://github.com/Canary-ECAD/eplan-mcp) publishes about 290
+tools. Hosts that defer tool schemas (Claude Code's ToolSearch) show only their names, so
+load the ones you need by exact name in **one** call, for example
+`select:mcp__eplan__eplan_status,mcp__eplan__eplan_api_describe,mcp__eplan__eplan_script_run`.
+Start with `eplan_status`.
+
+| Task | Tool |
+|---|---|
+| Is EPLAN up, which version, which project | `eplan_status` |
+| Exact action name and parameters | `eplan_action_catalog`, then `eplan_action_describe` |
+| Does an `Eplan.EplApi` type or member exist | `eplan_api_types`, `eplan_api_describe` |
+| Run C# against the API (2027+ script host) | `eplan_script_run`: `compile_only=True`, then `dry_run=True`, then for real |
+| Ready-made scripts | `eplan_script_list`, then `eplan_script_run(script=...)` |
+| A long run | `eplan_script_status(run_id)`, `eplan_script_cancel` |
+| Any write | first a clone with `eplan_scratch_project_create`, never the user's project unless they approved it |
+| Pages, devices, connections, terminals | the `eplan_live_*` family (read before you write) |
+| A run that hangs | `eplan_list_dialogs` (a modal dialog, usually), then `eplan_get_system_messages` |
+| Check-run messages | `eplan_live_read_check_messages` |
+
+Before writing a script for the script host, read the MCP resource
+`eplan-help://scripting-guide`. It covers `ctx`, the `@writes`/`@needs` headers, the write
+gate and the `EMCP00x` safety-check codes. The script host is not the same as plain
+`ExecuteScript`. It compiles with EPLAN's Roslyn and needs EPLAN 2027 (.NET 8). On 2026, use
+`eplan_execute_custom_script` and the C# 5 rule (golden rule 10).
+
+Script replies name their resources (`resources`, `source_uri`): a run's full result, its
+large data and its progress are `eplan-script://runs/<run_id>/{result,data,progress}`, read on
+demand instead of pasted into the reply. These are template URIs, so listing resources does not
+show them; take them from the reply.
+
 ## Golden rules (violating these causes real production failures)
 
 1. **EPLAN actions are pseudo-asynchronous.** After `oCLI.Execute(...)` in an external/long-running context, code can hang forever without an active message loop. See `references/pitfalls.md` before writing any multi-step automation.

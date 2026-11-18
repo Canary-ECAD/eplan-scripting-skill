@@ -1,5 +1,5 @@
 ---
-name: router
+name: eplan-router
 description: >
   Routes any EPLAN Electric P8 request to the right reference and documentation
   index: classifies the task, then reads the matching part of the eplan-scripting
@@ -9,7 +9,7 @@ description: >
   semantic, 2027 keyword). Start here when unsure which EPLAN skill applies.
 ---
 
-# Router — EPLAN skill dispatcher
+# eplan-router — EPLAN skill dispatcher
 
 Entry point for EPLAN work. It fingerprints the product, classifies the task, and
 names the **minimal** set of skills to read before acting. It dispatches — it does
