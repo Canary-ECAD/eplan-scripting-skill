@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Agent-agnostic [skills](https://agentskills.io) for **EPLAN Electric P8** development: C# scripting, the
-EPLAN API and Remote Client. The **router** picks the right reference and documentation index for the task.
+EPLAN API and Remote Client. The **eplan-router** skill picks the right reference and documentation index for the task.
 
 Teaches your agent the traps that only show up in production:
 - silent compile failures;
@@ -37,7 +37,7 @@ The plugins are published through the single Canary E-cad marketplace,
 
 ```
 /plugin marketplace add Canary-ECAD/eplan-mcp
-/plugin install eplan@eplan-tools            # router + P8 skill + P8 doc RAGs
+/plugin install eplan@eplan-tools            # eplan-router + P8 skill + P8 doc RAGs
 /plugin install eplan-scripting@eplan-tools  # Electric P8 skill only
 /plugin install eec-pro@eplan-tools          # EEC Pro (from eec-pro-skill)
 ```
@@ -63,8 +63,11 @@ xcopy /E /I eplan-scripting-skill\skills\eplan-p8\eplan-scripting "$env:USERPROF
 ```bash
 # macOS / Linux — universal dir (Amp, Codex, Cline, …). Use ~/.claude/skills for Claude Code.
 cp -r eplan-scripting-skill/skills/eplan-p8/eplan-scripting ~/.agents/skills/
-cp -r eplan-scripting-skill/router ~/.agents/skills/router
+cp -r eplan-scripting-skill/eplan-router ~/.agents/skills/eplan-router
 ```
+
+> The router used to be called `router`. If you copied it by hand, delete the old
+> `~/.agents/skills/router` (or `~/.claude/skills/router`) folder after copying the new one.
 
 For a single project, copy into `<your-project>/.agents/skills/` (or
 `.claude/skills/`) instead.
@@ -108,7 +111,7 @@ running EPLAN, introspect the API live) installs separately — it needs Python 
 ```
 eplan-scripting-skill/
 ├── .mcp.json                   # the two remote P8 doc-RAG MCP servers
-├── router/
+├── eplan-router/
 │   └── SKILL.md                # classifies the task → right reference + doc index; EEC Pro → eec-pro-skill
 └── skills/
     └── eplan-p8/

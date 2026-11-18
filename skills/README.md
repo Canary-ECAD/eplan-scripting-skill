@@ -8,4 +8,4 @@ EPLAN EEC Pro (typicals, mechatronic model, formulas, Job Server, generation) ha
 [eec-pro-skill](https://github.com/Canary-ECAD/eec-pro-skill).
 
 Each skill is a folder with a `SKILL.md`. The folder name must equal the skill's
-`name` frontmatter field. The router lives in [`../router/`](../router/).
+`name` frontmatter field. The router, `eplan-router`, lives in [`../eplan-router/`](../eplan-router/).
