@@ -188,28 +188,15 @@ works.
 
 ### The documented web API
 
-The Data Portal has a documented web API at `https://dataportal.eplan.com/api`
-(OpenAPI 3.0, JSON:API responses; description at `/api/doc`). Without a token:
-
-- `POST /partscheck` with `Content-Type: text/plain`, one part number per line
-  (`GET` works too): a `partscheckresult` per number found (`partid`,
-  `partnr`, `typenr`, `ordernr`, `part_version`, `upload_date`…) or a
-  `partscheckmissingresult`. The `partid` is what `PARTID<i>` above takes.
-- `GET /parts/{id}`: the part's details, with `designation` and `description`
-  per language, `lifecycle`, `identcode`, macro paths and relationships to its
-  manufacturer, picture, function templates and macros.
-- `GET /parts`: search.
-
-Send `Accept: application/vnd.api+json`. A hit whose manufacturer differs from
-the one in your database is a different part with the same number, not a
-match. Some catalogs' numbers aren't found exactly as a database stores them
-(punctuation differs), so a miss doesn't prove the part isn't there.
-
-The download list over the web API (`/basketitems`) needs a personal access
-token the user makes in their ePulse profile, sent as
-`Authorization: Bearer PAT:<token>`; without one it answers
-`401 Missing JWT token`. EPLAN part data itself only arrives through the
-add-in's download, not through the web API.
+The Data Portal's web API (`https://dataportal.eplan.com/api`) is in
+**`dataportal-api.md`**: which routes need no token (lookup, search, part
+details, macros, catalogs) and which need a personal access token
+(downloads, the download list), the filters that differ from the published
+spec, and the part → macro → variant → E3D chain. The one fact this page needs
+from it: `POST /partscheck` (text/plain, one number per line, no token) returns
+the `partid` that `PARTID<i>` above takes, and the `partnr` to pair with it.
+EPLAN part data itself only arrives through the add-in's download, not through
+the web API.
 
 Use only these two surfaces, the add-in's actions and the documented API.
 The Data Portal window's own internal calls carry the user's EPLAN licence and
