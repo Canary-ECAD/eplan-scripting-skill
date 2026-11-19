@@ -47,6 +47,9 @@ yourself, without EEC in the loop, is P8 work: `eplan-scripting` → `eec-typica
   → `eplan-scripting` → `references/api-data-access.md`.
 - **Check or fix a parts database in bulk** (XML export/import, import modes,
   Data Portal downloads) → `eplan-scripting` → `references/parts-database.md`.
+- **Find parts on the Data Portal, or call its web API** (part number → id,
+  search, 3D/DXF downloads, the download list, a PAT) → `eplan-scripting` →
+  `references/dataportal-api.md`.
 - **Drive EPLAN from outside** (Remote Client, headless, ports, Cogineer) →
   `eplan-scripting` → `references/remoting.md`.
 - **Decode/generate a typical workbook into a P8 project** → `eplan-scripting` →
